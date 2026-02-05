@@ -1,0 +1,20 @@
+{
+  "name": "@2xtap/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^9.1.0",
+    "@fastify/helmet": "^11.0.0",
+    "@fastify/cors": "^9.0.0",
+    "fastify": "^4.26.0",
+    "ioredis": "^5.4.0",
+    "@prisma/client": "^5.20.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestType {
+  daily_checkin
+  join_channel
+  referral_bonus
+  exchange_signup
+}
+
+enum QuestStatus {
+  pending
+  verified
+  claimed
+  rejected
+}
+
+model User {
+  id             String   @id @default(cuid())
+  telegramId     BigInt   @unique
+  username       String?
+  firstName      String?
+  lastName       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  totalPoints    Int      @default(0)
+  tapPoints      Int      @default(0)
+  questPoints    Int      @default(0)
+
+  energyMax      Int      @default(100)
+  energy         Int      @default(100)
+  regenRate      Int      @default(1)
+  lastEnergyAt   DateTime @default(now())
+
+  tapPower       Int      @default(1)
+
+  referralCode   String   @unique
+  referredById   String?
+  referredBy     User?    @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals      User[]   @relation("UserReferrals")
+
+  userQuests     UserQuest[]
+  userUpgrades   UserUpgrade[]
+}
+
+model Quest {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  type        QuestType
+  title       String
+  description String?
+  reward      Int       @default(0)
+  verify      Boolean   @default(true)
+  active      Boolean   @default(true)
+  metadata    Json?
+
+  userQuests  UserQuest[]
+}
+
+model UserQuest {
+  id         String      @id @default(cuid())
+  userId     String
+  questId    String
+  status     QuestStatus @default(pending)
+  verifiedAt DateTime?
+  claimedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User  @relation(fields: [userId], references: [id])
+  quest      Quest @relation(fields: [questId], references: [id])
+
+  @@unique([userId, questId])
+}
+
+model Upgrade {
+  id           String @id @default(cuid())
+  key          String @unique
+  title        String
+  description  String?
+  baseCost     Int
+  increment    Int
+  maxLevel     Int @default(50)
+
+  userUpgrades UserUpgrade[]
+}
+
+model UserUpgrade {
+  id        String  @id @default(cuid())
+  userId    String
+  upgradeId String
+  level     Int     @default(0)
+
+  user      User    @relation(fields: [userId], references: [id])
+  upgrade   Upgrade @relation(fields: [upgradeId], references: [id])
+
+  @@unique([userId, upgradeId])
+}
+
+model DailyStat {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  taps      Int      @default(0)
+  points    Int      @default(0)
+
+  @@unique([userId, date])
+}
+
+model Referral {
+  id        String   @id @default(cuid())
+  inviterId String
+  inviteeId String
+  createdAt DateTime @default(now())
+
+  @@unique([inviterId, inviteeId])
+}

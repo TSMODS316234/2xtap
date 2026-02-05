@@ -1,0 +1,9 @@
+{
+  "name": "@2xtap/shared",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
